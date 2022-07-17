@@ -1,0 +1,41 @@
+@tailwind utilities;
+
+@layer utilities {
+  .csstransition-menu--wrapper {
+    @apply overflow-hidden;
+  }
+  .csstransition-menu--primary-enter {
+    @apply absolute;
+    transform: translateX(-110%);
+  }
+
+  .csstransition-menu--primary-enter-active {
+    @apply transform translate-x-0 transition-all ease-in-out duration-200;
+  }
+
+  .csstransition-menu--primary-exit {
+    @apply absolute opacity-100;
+  }
+
+  .csstransition-menu--primary-exit-active {
+    @apply transition-all ease-in-out duration-200 opacity-0;
+    transform: translateX(-110%);
+  }
+
+  .csstransition-menu--secondary-enter {
+    transform: translateX(110%);
+  }
+
+  .csstransition-menu--secondary-enter-active {
+    @apply transform translate-x-0 transition-all ease-in-out duration-200;
+  }
+
+  .csstransition-menu--secondary-exit {
+    @apply absolute opacity-100;
+  }
+
+  .csstransition-menu--secondary-exit-active {
+    @apply transition-all ease-in-out duration-200 opacity-0;
+    transform: translateX(110%);
+  }
+}
