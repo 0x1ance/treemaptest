@@ -12,13 +12,13 @@ import { TreemapView } from "../components/TreemapView.component";
 const TreemapGeneratorPage: FC = ({ ...props }) => {
   const { activeMenu } = useTreemapGeneratorContext();
   return (
-    <div className="bg-black text-white flex flex-col justify-center px-4 lg:px-10 py-10 min-h-screen">
+    <div className="bg-black text-white flex justify-center px-[20px] py-[40px] min-h-screen">
       {/* Mobile Conversation Selection Menu */}
       <CSSTransition
         classNames="csstransition-menu--primary"
         in={activeMenu === TreemapGeneratorMenuEnum.InputForm}
         unmountOnExit
-        timeout={200}
+        timeout={300}
       >
         <TreemapInputForm />
       </CSSTransition>
@@ -28,7 +28,7 @@ const TreemapGeneratorPage: FC = ({ ...props }) => {
         classNames="csstransition-menu--secondary"
         in={activeMenu === TreemapGeneratorMenuEnum.TreemapView}
         unmountOnExit
-        timeout={200}
+        timeout={300}
       >
         <TreemapView />
       </CSSTransition>

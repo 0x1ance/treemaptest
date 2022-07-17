@@ -3,17 +3,26 @@ import clsx from "clsx";
 import React, { FC, useEffect, useRef, useState } from "react";
 import {
   TreemapDatapointType,
+  TreemapGeneratorMenuEnum,
   useTreemapGeneratorContext,
 } from "../context/TreemapGenerator.context";
 import { useSizeObserver } from "../context/useSizeObserver";
 
 export const TreemapView = () => {
+  const { setTreemapData, setActiveMenu } = useTreemapGeneratorContext();
   return (
     <div className="flex-1 w-full flex flex-col items-center">
       <Treemap />
-      <div className="text-center mt-6 lg:mt-10">
+      <div className="text-center mt-8">
         <button
-          type="submit"
+          onClick={()=>{
+            setTreemapData({
+              data:[],
+              numberOfRow:0
+            })
+            setActiveMenu(TreemapGeneratorMenuEnum.InputForm)
+          }}
+          type="button"
           className="bg-white text-black rounded-3xl px-5 py-2 flex space-x-2 items-center"
         >
           <RefreshIcon className="w-5 h-5" />
@@ -67,14 +76,11 @@ const Treemap: FC = () => {
       (clientHeight - (treemapData.numberOfRow - 1) * GAP_SIZE_IN_PX) /
       treemapData.numberOfRow;
   }
-  if (typeof window === "undefined") {
-    return <></>;
-  }
 
   return (
     <div
       ref={refContainer}
-      className={`bg-gray-800 flex-1 w-full flex flex-col gap-[4px]`}
+      className={`bg-gray-800 h-[80vh] w-[96vw] flex flex-col gap-[4px]`}
       style={{ maxWidth: innerWidth }}
     >
       {rows.map((rowData, idx) => {
@@ -100,14 +106,11 @@ const TreemapRow: FC<{
       (clientWidth - (rowData.length - 1) * GAP_SIZE_IN_PX) / totalWeight;
   }
 
-  if (typeof window === "undefined") {
-    return <></>;
-  }
-
   return (
     <div
       className="w-full bg-gray-800 flex gap-[4px]"
-      style={{ height, maxWidth: innerWidth }}
+      key={innerWidth}
+      style={{ height }}
       ref={refContainer}
     >
       {rowData.map((el, idx) => {
@@ -129,12 +132,10 @@ const TreemapRowElement: FC<{
 }> = ({ datapoint, unitWidthPerWeight }) => {
   const { weight, value, name } = datapoint;
 
-  if (typeof window === "undefined") {
-    return <></>;
-  }
   return (
     <div
       style={{ width: unitWidthPerWeight * weight }}
+      key={innerWidth}
       className={clsx(
         value > 0 ? "bg-red-400" : value < 0 ? "bg-green-400" : "bg-gray-400",
         "flex flex-col items-center justify-center text-gray-800"

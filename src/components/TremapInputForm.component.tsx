@@ -4,9 +4,26 @@ import { Formik, useFormik, useFormikContext } from "formik";
 import * as Yup from "yup";
 import clsx from "clsx";
 import { ExclamationCircleIcon } from "@heroicons/react/solid";
+import { TreemapDataInput } from "./TreemapDataInput.component";
+import {
+  TreemapDatapointType,
+  TreemapGeneratorMenuEnum,
+  useTreemapGeneratorContext,
+} from "../context/TreemapGenerator.context";
 
 export const TreemapInputForm = () => {
-  const handleSubmit = useCallback(async () => {}, []);
+  const { setTreemapData, setActiveMenu } = useTreemapGeneratorContext();
+  const handleSubmit = useCallback(
+    async ({ data, numberOfRow }: { data: string; numberOfRow: number }) => {
+      const parsedArray = JSON.parse(data) as TreemapDatapointType[];
+      setTreemapData({
+        data: parsedArray,
+        numberOfRow,
+      });
+      setActiveMenu(TreemapGeneratorMenuEnum.TreemapView);
+    },
+    []
+  );
 
   const GenerateTreemapFormSchema = useMemo(
     () =>
@@ -42,8 +59,90 @@ export const TreemapInputForm = () => {
                 return false;
               }
             }
+          )
+          .test(
+            "validNameField",
+            "name field must be string and less than 50 characters",
+            (str) => {
+              try {
+                const parsedArray = JSON.parse(str!);
+
+                for (let i = 0; i < parsedArray.length; i++) {
+                  const currentDatapoint = parsedArray[i];
+                  if (
+                    !currentDatapoint["name"] ||
+                    typeof currentDatapoint["name"] !== "string" ||
+                    currentDatapoint["name"].length > 50
+                  ) {
+                    return false;
+                  }
+                }
+                return true;
+              } catch (e) {
+                return false;
+              }
+            }
+          )
+          .test("validWeightField", "weight field must be integer", (str) => {
+            try {
+              const parsedArray = JSON.parse(str!);
+
+              for (let i = 0; i < parsedArray.length; i++) {
+                const currentDatapoint = parsedArray[i];
+                if (
+                  !currentDatapoint["weight"] ||
+                  typeof currentDatapoint["weight"] !== "number" ||
+                  !Number.isInteger(currentDatapoint["weight"])
+                ) {
+                  return false;
+                }
+              }
+              return true;
+            } catch (e) {
+              return false;
+            }
+          })
+          .test("validValueField", "value field must be number", (str) => {
+            try {
+              const parsedArray = JSON.parse(str!);
+
+              for (let i = 0; i < parsedArray.length; i++) {
+                const currentDatapoint = parsedArray[i];
+                if (
+                  !currentDatapoint["value"] ||
+                  typeof currentDatapoint["value"] !== "number"
+                ) {
+                  return false;
+                }
+              }
+              return true;
+            } catch (e) {
+              return false;
+            }
+          }),
+        numberOfRow: Yup.number()
+          .integer()
+          .required()
+          .positive()
+          .max(50)
+          .test(
+            "lengthValidation",
+            "row number must be equal or less than the total number of datapoints in the json",
+            (val, ctx) => {
+              if (!val) return false;
+              const currentDataJson = ctx.parent.data as string;
+              if (!currentDataJson) return false;
+              try {
+                const parsedArray = JSON.parse(currentDataJson);
+
+                if (!Array.isArray(parsedArray)) return false;
+
+                return val <= parsedArray.length;
+              } catch (e) {
+                return false;
+              }
+            }
           ),
-        numberOfRow: Yup.number().integer().required().max(50),
       }),
     []
   );
@@ -64,7 +163,7 @@ export const TreemapInputForm = () => {
             {  "name": "D", "weight": 2, "value": -0.01 },
             {  "name": "E", "weight": 3, "value": 0.01 }
         ]`,
-          numberOfRow: "",
+          numberOfRow: 1,
         }}
         validationSchema={GenerateTreemapFormSchema}
         onSubmit={handleSubmit}
@@ -81,56 +180,18 @@ export const TreemapInputForm = () => {
         }) => (
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-4 mt-16 px-10 lg:mt-12 min-w-full lg:min-w-[500px]"
+            className="flex flex-col gap-4 mt-16 px-10 lg:mt-12 min-w-full lg:min-w-[500px] justify-center items-center"
           >
-            {/* {status.info.error ? (
-                <div
-                  className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-                  role="alert"
-                >
-                  <strong className="font-bold">Error</strong>:{" "}
-                  <span className="block sm:inline">{status.info.msg}</span>
-                </div>
-              ) : null} */}
-
-            <div className="relative">
-              <textarea
-                id="data"
-                name="data"
-                required
-                placeholder={`[
-                    {  "name": "A", "weight": 3, "value": -0.02 },
-                    {  "name": "B", "weight": 3, "value": 0.05 },
-                    {  "name": "C", "weight": 6, "value": 0.015 },
-                    {  "name": "D", "weight": 2, "value": -0.01 },
-                    {  "name": "E", "weight": 3, "value": 0.01 }
-                ]`}
-                className={clsx(
-                  "rounded-3xl border-2 px-8 py-2 bg-black min-h-[30vh]",
-                  errors.data
-                    ? "pr-10 border-red-300 text-red-500 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500"
-                    : "text-white outline-none border-white focus:ring-indigo-500 focus:border-indigo-500",
-                  "max-w-lg block w-full"
-                )}
-                onChange={handleChange}
-                value={values.data}
-                onBlur={handleBlur}
-              />
-              {errors.data ? (
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <ExclamationCircleIcon
-                    className="h-5 w-5 text-red-500"
-                    aria-hidden="true"
-                  />
-                </div>
-              ) : null}
+            <div className="relative w-full flex justify-center">
+              <TreemapDataInput />
             </div>
+
             {errors.data ? (
               <p className="text-center text-sm text-red-600" id="email-error">
                 {errors.data}
               </p>
             ) : null}
-            <div className="relative mt-4">
+            <div className="relative mt-4 w-full flex justify-center">
               <input
                 id="numberOfRow"
                 name="numberOfRow"
@@ -165,6 +226,7 @@ export const TreemapInputForm = () => {
 
             <div className="text-center mt-10">
               <button
+                disabled={!touched}
                 type="submit"
                 className="bg-white text-black rounded-3xl px-8 py-2"
               >

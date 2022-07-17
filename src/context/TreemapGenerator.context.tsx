@@ -48,22 +48,15 @@ export const TreemapGeneratorContextProvider: FC<PropsWithChildren> = ({
   ...props
 }) => {
   const [activeMenu, setActiveMenu] = useState<TreemapGeneratorMenuEnum>(() => {
-    return TreemapGeneratorMenuEnum.TreemapView;
+    return TreemapGeneratorMenuEnum.InputForm;
   });
 
   const [treemapData, setTreemapData] = useState<{
     data: TreemapDatapointType[];
     numberOfRow: number;
   }>({
-    data: [
-        {  "name": "A", "weight": 3, "value": -0.02 },
-        {  "name": "B", "weight": 3, "value": 0.05 },
-        {  "name": "C", "weight": 6, "value": 0.015 },
-        {  "name": "D", "weight": 2, "value": 0 },
-        {  "name": "E", "weight": 3, "value": 0.01 },
-        {  "name": "F", "weight": 7, "value": 0.04 }
-    ],
-    numberOfRow: 4,
+    data: [],
+    numberOfRow: 0,
   });
 
   return (
